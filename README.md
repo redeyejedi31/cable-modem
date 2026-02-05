@@ -1,4 +1,4 @@
-# Gaining API access to VirginMedia Hub 5 
+# Gaining API access to Cable Modem Hub 5 
 
 ## Introduction
 I have written a script (work in progress) that retrieves the Cable Modems (CM) stats by querying the hub5's Api, the data is stored in mysql and stats displayed in Grafana. I will will be uploaded the script to github soon.
@@ -205,59 +205,105 @@ curl --location --request GET 'http://192.168.0.1/rest/v1/network/hosts?connecte
 }
 ```
 Here are the API-accessible pages, without detailing the specific commands or their functionality: 
-### Exposed to api
-```
-/rest/v1/cablemodem/downstream
-/rest/v1/cablemodem/downstream/primary_
-/rest/v1/cablemodem/registration
-/rest/v1/cablemodem/state
-/rest/v1/cablemodem/state_
-/rest/v1/cablemodem/upstream
-/rest/v1/mta/lines
-/rest/v1/network/hosts?connectedOnly=true
-/rest/v1/network/hosts?connectedOnly=true&interface=wifi
-/rest/v1/network/ipportfilters
-/rest/v1/network/ipv4/dhcp
-/rest/v1/network/ipv4/dmz
-/rest/v1/network/ipv4/firewall
-/rest/v1/network/ipv4/info
-/rest/v1/network/ledlight
-/rest/v1/network/macfilters
-/rest/v1/network/mtu
-/rest/v1/network/portforwarding
-/rest/v1/network/porttriggers
-/rest/v1/network/reservedipaddresses
-/rest/v1/network/upnp 
-/rest/v1/system/diagnostics/ping/job/1
-/rest/v1/system/diagnostics/ping/jobs?stateOnly=true
-/rest/v1/system/diagnostics/traceroute/jobs?stateOnly=true
-/rest/v1/system/firstinstall
-/rest/v1/system/gateway/provisioning
-/rest/v1/system/info
-/rest/v1/system/languages
-/rest/v1/system/localization
-/rest/v1/system/modemmode
-/rest/v1/system/reboot
-/rest/v1/system/restore
-/rest/v1/system/ui/defaults
-/rest/v1/system/ui/screens
-/rest/v1/user/3/language
-/rest/v1/user/3/password
-/rest/v1/user/login
-/rest/v1/wifi/band2g/config
-/rest/v1/wifi/band2g/guest/config
-/rest/v1/wifi/band2g/macfilters
-/rest/v1/wifi/band2g/state
-/rest/v1/wifi/band2g/wps/config
-/rest/v1/wifi/band2g/wps/pairing/jobs
-/rest/v1/wifi/band5g/config
-/rest/v1/wifi/band5g/guest/config
-/rest/v1/wifi/band5g/macfilters
-/rest/v1/wifi/band5g/state
-/rest/v1/wifi/band5g/wps/config
-/rest/v1/wifi/band5g/wps/pairing/jobs
-/rest/v1/wifi/capabilities
-/rest/v1/wifi/smartmode
-/resources/languages/uk.json
-Pages marked with an asterisk (*) are accessible without authentication.
-```
+### Exposed api endpoints
+
+| Endpoint | Function |
+|---|---|
+| **Static Resources** |  |
+| `/resources/languages*` | Base path for language JSON resources (used to load `/resources/languages/{lang}.json`) |
+| `/resources/languages/uk.json*` | UK translation strings (language pack JSON) |
+| **Cable Modem Endpoints** |  |
+| `/rest/v1/cablemodem/` | Cable modem overview/summary (DOCSIS status bundle) |
+| `/rest/v1/cablemodem/downstream` | DOCSIS downstream channel table |
+| `/rest/v1/cablemodem/downstream/primary_` | Primary downstream channel summary |
+| `/rest/v1/cablemodem/eventlog` | Cable modem event log (DOCSIS log entries) |
+| `/rest/v1/cablemodem/registration*` | Cable modem registration/provisioning state |
+| `/rest/v1/cablemodem/serviceflows` | DOCSIS service flow information |
+| `/rest/v1/cablemodem/state` | Cable modem state/link status (DOCSIS state object) |
+| `/rest/v1/cablemodem/state_` | Cable modem state (alternate/legacy variant used by UI) |
+| `/rest/v1/cablemodem/upstream` | DOCSIS upstream channel table |
+| `/rest/v1/cablemodem/upstream/primary_` | Primary upstream channel summary |
+| `/rest/v1/cablemodem/{direction}` | DOCSIS channel table by direction (`downstream` \| `upstream`) |
+| `/rest/v1/cablemodem/{direction}/primary_` | Primary channel summary by direction (`downstream` \| `upstream`) |
+| **Echo Endpoint** |  |
+| `/rest/v1/echo` | Service availability/connectivity probe endpoint (used by UI during reboot/polling) |
+| **MTA Endpoints** |  |
+| `/rest/v1/mta/lines` | Telephony (MTA) line status |
+| **Network Endpoints** |  |
+| `/rest/v1/network/hosts` | LAN host/device list (supports filters such as `connectedOnly` / `interface` depending on variant) |
+| `/rest/v1/network/hosts?connectedOnly=true&interface=wifi` | Host list filtered to currently-connected WiFi devices |
+| `/rest/v1/network/hosts_?connectedOnly=true&interface=ethernet` | Host list (alternate endpoint) filtered to currently-connected Ethernet devices |
+| `/rest/v1/network/hosts_?connectedOnly=true&interface=wifi` | Host list (alternate endpoint) filtered to currently-connected WiFi devices |
+| `/rest/v1/network/ipportfilters` | IP/port filter rules (access control/filtering configuration) |
+| `/rest/v1/network/ipv4/dhcp` | DHCP server configuration (IPv4) |
+| `/rest/v1/network/ipv4/dmz` | DMZ configuration (IPv4) |
+| `/rest/v1/network/ipv4/firewall` | Firewall configuration (IPv4) |
+| `/rest/v1/network/ipv4/info` | IPv4 interface/addressing information |
+| `/rest/v1/network/ledlight` | Front-panel LED/light settings |
+| `/rest/v1/network/macfilters` | MAC filtering rules |
+| `/rest/v1/network/mtu` | WAN/LAN MTU configuration |
+| `/rest/v1/network/portforwarding` | Port forwarding rules (NAT forwards) |
+| `/rest/v1/network/porttriggers` | Port triggering rules |
+| `/rest/v1/network/reservedipaddresses` | DHCP reservation list (static leases) |
+| `/rest/v1/network/upnp` | UPnP configuration and/or status |
+| `/rest/v1/network/mbu` | MBU status/info (keep if verified on-device; name suggests a status/info object) |
+| **PON Endpoints** |  |
+| `/rest/v1/pon/state*` | PON/optical link state (only relevant if device exposes a PON module) |
+| **System Endpoints** |  |
+| `/rest/v1/system/diagnostics/ping/job/` | Ping job instance endpoint (job lifecycle/result; ID required in practice) |
+| `/rest/v1/system/diagnostics/ping/job/1` | Ping job instance endpoint for job ID 1 (get state/result; delete job) |
+| `/rest/v1/system/diagnostics/ping/job/1?stateOnly=true` | Ping job state-only view for job ID 1 |
+| `/rest/v1/system/diagnostics/ping/job/{id}` | Ping job instance endpoint (get state/result; delete job) |
+| `/rest/v1/system/diagnostics/ping/job/{id}?stateOnly=true` | Ping job instance state-only view |
+| `/rest/v1/system/diagnostics/ping/job/{pingJobs}` | Bulk ping job lookup endpoint (multiple IDs encoded in path) |
+| `/rest/v1/system/diagnostics/ping/jobs` | Ping job collection (create new job; list jobs) |
+| `/rest/v1/system/diagnostics/ping/jobs?stateOnly=true` | Ping job collection state-only view |
+| `/rest/v1/system/diagnostics/traceroute/job/` | Traceroute job instance endpoint (job lifecycle/result; ID required in practice) |
+| `/rest/v1/system/diagnostics/traceroute/job/1` | Traceroute job instance endpoint for job ID 1 (get state/result; delete job) |
+| `/rest/v1/system/diagnostics/traceroute/job/1?stateOnly=true` | Traceroute job state-only view for job ID 1 |
+| `/rest/v1/system/diagnostics/traceroute/job/{id}` | Traceroute job instance endpoint (get state/result; delete job) |
+| `/rest/v1/system/diagnostics/traceroute/job/{id}?stateOnly=true` | Traceroute job instance state-only view |
+| `/rest/v1/system/diagnostics/traceroute/job/{traceRouteJobs}` | Bulk traceroute job lookup endpoint (multiple IDs encoded in path) |
+| `/rest/v1/system/diagnostics/traceroute/jobs` | Traceroute job collection (create new job; list jobs) |
+| `/rest/v1/system/diagnostics/traceroute/jobs?stateOnly=true` | Traceroute job collection state-only view |
+| `/rest/v1/system/firstinstall*` | Initial setup/first-run state |
+| `/rest/v1/system/gateway/provisioning*` | Gateway provisioning/activation status |
+| `/rest/v1/system/info` | System/device information (model, firmware, uptime, etc) |
+| `/rest/v1/system/languages` | Supported languages list (system/UI locales) |
+| `/rest/v1/system/localization` | Current localisation settings (locale/timezone/language selection) |
+| `/rest/v1/system/modemmode` | Modem mode/router mode configuration and state |
+| `/rest/v1/system/reboot` | Trigger reboot |
+| `/rest/v1/system/restore` | Factory reset/restore defaults |
+| `/rest/v1/system/softwareupdate*` | Firmware/software update status (and possibly trigger/check) |
+| `/rest/v1/system/ui/defaults` | UI defaults/initial UI configuration values |
+| `/rest/v1/system/ui/screens*` | UI screen/page registry (what screens are available/enabled) |
+| **User Endpoints** |  |
+| `/rest/v1/user/` | User resource collection/current user info (may support CRUD depending on implementation) |
+| `/rest/v1/user/3/language` | Get/set language preference for user ID 3 |
+| `/rest/v1/user/3/password` | Change password for user ID 3 |
+| `/rest/v1/user/login` | Login/authentication endpoint (session/token workflow) |
+| `/rest/v1/user/{user}/language` | Get/set language preference for specified user ID |
+| `/rest/v1/user/{user}/token/{authRetrieveToken}` | Token/session management endpoint (retrieve/revoke token depending on verb) |
+| **WiFi Endpoints** |  |
+| `/rest/v1/wifi/` | WiFi overview/summary |
+| `/rest/v1/wifi/band2g/config` | 2.4 GHz WiFi configuration |
+| `/rest/v1/wifi/band2g/guest/config` | 2.4 GHz guest WiFi configuration |
+| `/rest/v1/wifi/band2g/macfilters` | 2.4 GHz MAC filtering configuration |
+| `/rest/v1/wifi/band2g/state` | 2.4 GHz WiFi status/state |
+| `/rest/v1/wifi/band2g/state_` | 2.4 GHz WiFi status/state (alternate/legacy variant) |
+| `/rest/v1/wifi/band2g/wps/config` | 2.4 GHz WPS configuration |
+| `/rest/v1/wifi/band2g/wps/pairing/jobs` | 2.4 GHz WPS pairing job collection/status |
+| `/rest/v1/wifi/band5g/config` | 5 GHz WiFi configuration |
+| `/rest/v1/wifi/band5g/guest/config` | 5 GHz guest WiFi configuration |
+| `/rest/v1/wifi/band5g/macfilters` | 5 GHz MAC filtering configuration |
+| `/rest/v1/wifi/band5g/state` | 5 GHz WiFi status/state |
+| `/rest/v1/wifi/band5g/state_` | 5 GHz WiFi status/state (alternate/legacy variant) |
+| `/rest/v1/wifi/band5g/wps/config` | 5 GHz WPS configuration |
+| `/rest/v1/wifi/band5g/wps/pairing/jobs` | 5 GHz WPS pairing job collection/status |
+| `/rest/v1/wifi/capabilities` | WiFi capability flags/features supported |
+| `/rest/v1/wifi/smartmode` | Smart WiFi/band steering mode configuration |
+| `/rest/v1/wifi/{band}/config` | WiFi configuration by band (`band2g` \| `band5g`) |
+| `/rest/v1/wifi/{band}/guest/config` | Guest WiFi configuration by band (`band2g` \| `band5g`) |
+| `/rest/v1/wifi/{band}/state` | WiFi status/state by band (`band2g` \| `band5g`) |
+
+
