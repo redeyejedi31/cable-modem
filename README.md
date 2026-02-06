@@ -1,7 +1,7 @@
 # Gaining API access to Cable Modem Hub 5 
 
 ## Introduction
-I have written a script (work in progress) that retrieves the Cable Modems (CM) stats by querying the hub5's Api, the data is stored in mysql and stats displayed in Grafana. I will will be uploaded the script to github soon.
+I have written a script (work in progress) that retrieves the Cable Modems (CM) Sagemcom F3896LG-VMB stats by querying the hub5's Api, the data is stored in mysql and stats displayed in Grafana. I will will be uploaded the script to github soon.
 
 ### How to access APi
 A bearer token is generated each time you login.
